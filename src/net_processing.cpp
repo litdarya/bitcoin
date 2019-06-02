@@ -2,6 +2,7 @@
 // Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#include <logging_research.h>
 
 #include <net_processing.h>
 
@@ -2793,9 +2794,27 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             // we have a chain with at least nMinimumChainWork), and we ignore
             // compact blocks with less work than our tip, it is safe to treat
             // reconstructed compact blocks as having been requested.
+            BOOST_LOG_SEV(ResearchLog::lg_get_block, ResearchLog::severity_level::stats)
+                                                                    << pblock->GetBlockHeader().GetHash().ToString()
+                                                                    << ","
+                                                                    << pblock->GetBlockHeader().nTime
+                                                                    << ","
+                                                                    << GetTimeMillis()
+                                                                    << ","
+                                                                    << GetAdjustedTime();
+
             ProcessNewBlock(chainparams, pblock, /*fForceProcessing=*/true, &fNewBlock);
             if (fNewBlock) {
                 pfrom->nLastBlockTime = GetTime();
+
+                BOOST_LOG_SEV(ResearchLog::lg_proc_block, ResearchLog::severity_level::stats)
+                        << pblock->GetBlockHeader().GetHash().ToString()
+                        << ","
+                        << pblock->GetBlockHeader().nTime
+                        << ","
+                        << GetTimeMillis()
+                        << ","
+                        << GetAdjustedTime();
             } else {
                 LOCK(cs_main);
                 mapBlockSource.erase(pblock->GetHash());
@@ -2882,9 +2901,27 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             // disk-space attacks), but this should be safe due to the
             // protections in the compact block handler -- see related comment
             // in compact block optimistic reconstruction handling.
+            BOOST_LOG_SEV(ResearchLog::lg_get_block, ResearchLog::severity_level::stats)
+                                                                    << pblock->GetBlockHeader().GetHash().ToString()
+                                                                   << ","
+                                                                   << pblock->GetBlockHeader().nTime
+                                                                   << ","
+                                                                   << GetTimeMillis()
+                                                                   << ","
+                                                                   << GetAdjustedTime();
+
             ProcessNewBlock(chainparams, pblock, /*fForceProcessing=*/true, &fNewBlock);
             if (fNewBlock) {
                 pfrom->nLastBlockTime = GetTime();
+
+                BOOST_LOG_SEV(ResearchLog::lg_proc_block, ResearchLog::severity_level::stats)
+                        << pblock->GetBlockHeader().GetHash().ToString()
+                        << ","
+                        << pblock->GetBlockHeader().nTime
+                        << ","
+                        << GetTimeMillis()
+                        << ","
+                        << GetAdjustedTime();
             } else {
                 LOCK(cs_main);
                 mapBlockSource.erase(pblock->GetHash());
@@ -2944,9 +2981,28 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             mapBlockSource.emplace(hash, std::make_pair(pfrom->GetId(), true));
         }
         bool fNewBlock = false;
+
+        BOOST_LOG_SEV(ResearchLog::lg_get_block, ResearchLog::severity_level::stats)
+                                                                << pblock->GetBlockHeader().GetHash().ToString()
+                                                               << ","
+                                                               << pblock->GetBlockHeader().nTime
+                                                               << ","
+                                                               << GetTimeMillis()
+                                                               << ","
+                                                               << GetAdjustedTime();
+
         ProcessNewBlock(chainparams, pblock, forceProcessing, &fNewBlock);
         if (fNewBlock) {
             pfrom->nLastBlockTime = GetTime();
+
+            BOOST_LOG_SEV(ResearchLog::lg_proc_block, ResearchLog::severity_level::stats)
+                    << pblock->GetBlockHeader().GetHash().ToString()
+                    << ","
+                    << pblock->GetBlockHeader().nTime
+                    << ","
+                    << GetTimeMillis()
+                    << ","
+                    << GetAdjustedTime();
         } else {
             LOCK(cs_main);
             mapBlockSource.erase(pblock->GetHash());
@@ -3737,6 +3793,10 @@ bool PeerLogicValidation::SendMessages(CNode* pto)
                     connman->PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                     vInv.clear();
                 }
+                BOOST_LOG_SEV(ResearchLog::lg_send_inv_block, ResearchLog::severity_level::stats)
+                        << hash.ToString()
+                        << ","
+                        << GetTimeMillis();
             }
             pto->vInventoryBlockToSend.clear();
 
@@ -3787,6 +3847,10 @@ bool PeerLogicValidation::SendMessages(CNode* pto)
                         connman->PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                         vInv.clear();
                     }
+                    BOOST_LOG_SEV(ResearchLog::lg_send_inv_block, ResearchLog::severity_level::stats)
+                            << hash.ToString()
+                            << ","
+                            << GetTimeMillis();
                 }
                 pto->timeLastMempoolReq = GetTime();
             }
