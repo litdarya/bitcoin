@@ -972,6 +972,7 @@ AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD
 AX_BOOST_CHRONO
+AX_BOOST_LOGGING
 
 dnl Boost 1.56 through 1.62 allow using std::atomic instead of its own atomic
 dnl counter implementations. In 1.63 and later the std::atomic approach is default.
@@ -1038,7 +1039,7 @@ fi
 
 if test x$use_boost = xyes; then
 
-BOOST_LIBS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_THREAD_LIB $BOOST_CHRONO_LIB"
+BOOST_LIBS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_LOGGING_LIB $BOOST_LOGGING_SETUP_LIB  $BOOST_FILESYSTEM_LIB $BOOST_THREAD_LIB $BOOST_CHRONO_LIB"
 
 
 dnl If boost (prior to 1.57) was built without c++11, it emulated scoped enums

@@ -4,7 +4,7 @@
 #
 # SYNOPSIS
 #
-#   AX_BOOST_SYSTEM
+#   AX_BOOST_LOGGING
 #
 # DESCRIPTION
 #
@@ -14,7 +14,7 @@
 #
 #   This macro calls:
 #
-#     AC_SUBST(BOOST_SYSTEM_LIB)
+#     AC_SUBST(BOOST_LOGGING_LIB)
 #
 #   And sets:
 #
@@ -33,12 +33,12 @@
 
 #serial 18
 
-AC_DEFUN([AX_BOOST_SYSTEM],
+AC_DEFUN([AX_BOOST_LOGGING],
 [
 	AC_ARG_WITH([boost-system],
-	AS_HELP_STRING([--with-boost-system@<:@=special-lib@:>@],
-                   [use the System library from boost - it is possible to specify a certain library for the linker
-                        e.g. --with-boost-system=boost_system-gcc-mt ]),
+	AS_HELP_STRING([--with-boost-logger@<:@=special-lib@:>@],
+                   [boost logger library
+                        e.g. --with-boost-logger=boost_system-gcc-mt ]),
         [
         if test "$withval" = "no"; then
 			want_boost="no"
@@ -64,7 +64,7 @@ AC_DEFUN([AX_BOOST_SYSTEM],
 		LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
 		export LDFLAGS
 
-        AC_CACHE_CHECK(whether the Boost::System library is available,
+        AC_CACHE_CHECK(whether the Boost::Log library is available,
 					   ax_cv_boost_system,
         [AC_LANG_PUSH([C++])
 			 CXXFLAGS_SAVE=$CXXFLAGS
@@ -85,47 +85,42 @@ AC_DEFUN([AX_BOOST_SYSTEM],
 			LDFLAGS_SAVE=$LDFLAGS
             if test "x$ax_boost_user_system_lib" = "x"; then
                 ax_lib=
-                for libextension in `ls -r $BOOSTLIBDIR/libboost_system* 2>/dev/null | sed 's,.*/lib,,' | sed 's,\..*,,'` ; do
+                for libextension in `ls -r $BOOSTLIBDIR/libboost_log.* 2>/dev/null | sed 's,.*/lib,,' | sed 's,\..*,,'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
-                                 [BOOST_SYSTEM_LIB="-l$ax_lib"; AC_SUBST(BOOST_SYSTEM_LIB) link_system="yes"; break],
+                                 [BOOST_LOGGING_LIB="-l$ax_lib"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
                                  [link_system="no"])
 				done
 
-                #AC_CHECK_LIB(boost_log, exit,
-                #             [BOOST_LOGGING_LIB="-lboost_log"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
-                #             [link_system="no"])
-                #AC_CHECK_LIB(boost_log_setup, exit,
-                #             [BOOST_LOGGING_LIB="-lboost_log -lboost_log_setup"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
-                #             [link_system="no"])
+				for libextension in `ls -r $BOOSTLIBDIR/libboost_log_setup* 2>/dev/null | sed 's,.*/lib,,' | sed 's,\..*,,'` ; do
+                ax_lib=${libextension}
+                    AC_CHECK_LIB($ax_lib, exit,
+                                     [BOOST_LOGGING_SETUP_LIB="-l$ax_lib"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
+                                     [link_system="no"])
+                done
 
                 if test "x$link_system" != "xyes"; then
-                for libextension in `ls -r $BOOSTLIBDIR/boost_system* 2>/dev/null | sed 's,.*/,,' | sed -e 's,\..*,,'` ; do
+                for libextension in `ls -r $BOOSTLIBDIR/boost_log.* 2>/dev/null | sed 's,.*/,,' | sed -e 's,\..*,,'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
-                                 [BOOST_SYSTEM_LIB="-l$ax_lib"; AC_SUBST(BOOST_SYSTEM_LIB) link_system="yes"; break],
+                                 [BOOST_LOGGING_LIB="-l$ax_lib"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
                                  [link_system="no"])
 				done
-                #AC_CHECK_LIB(boost_log, exit,
-                #             [BOOST_LOGGING_LIB="-lboost_log"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
-                #             [link_system="no"])
-                #AC_CHECK_LIB(boost_log_setup, exit,
-                #             [BOOST_LOGGING_LIB="-lboost_log -lboost_log_setup"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
-                #             [link_system="no"])
-                fi
+
+				for libextension in `ls -r $BOOSTLIBDIR/boost_log_setup* 2>/dev/null | sed 's,.*/,,' | sed -e 's,\..*,,'` ; do
+                     ax_lib=${libextension}
+                    AC_CHECK_LIB($ax_lib, exit,
+                                 [BOOST_LOGGING_SETUP_LIB="-l$ax_lib"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
+                                 [link_system="no"])
+                done
+               fi
 
             else
                for ax_lib in $ax_boost_user_system_lib boost_system-$ax_boost_user_system_lib; do
 				      AC_CHECK_LIB($ax_lib, exit,
-                                   [BOOST_SYSTEM_LIB="-l$ax_lib"; AC_SUBST(BOOST_SYSTEM_LIB) link_system="yes"; break],
+                                   [BOOST_LOGGING_LIB="-l$ax_lib"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
                                    [link_system="no"])
                   done
-                #AC_CHECK_LIB(boost_log, exit,
-                #             [BOOST_LOGGING_LIB="-lboost_log"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
-                #             [link_system="no"])
-                #AC_CHECK_LIB(boost_log_setup, exit,
-                #             [BOOST_LOGGING_LIB="-lboost_log -lboost_log_setup"; AC_SUBST(BOOST_LOGGING_LIB) link_system="yes"; break],
-                #             [link_system="no"])
 
             fi
             if test "x$ax_lib" = "x"; then
